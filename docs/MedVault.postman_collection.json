@@ -1,0 +1,1444 @@
+{
+  "info": {
+    "name": "MedVault API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "drugId",
+      "value": ""
+    },
+    {
+      "key": "batchId",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Adaeze Okonkwo\",\n  \"email\": \"adaeze@medvault.app\",\n  \"staffId\": \"STF-0142\",\n  \"role\": \"Pharmacist\",\n  \"pharmacyName\": \"Okonkwo Pharmacy\",\n  \"password\": \"medvault123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.token) pm.collectionVariables.set('token', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (email or staff ID)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"STF-0142\",\n  \"password\": \"medvault123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.token) pm.collectionVariables.set('token', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin (administrator token)",
+      "description": "Sign in as the administrator first (Admin login). Every request here uses {{adminToken}}. A pharmacy token gets 403.",
+      "item": [
+        {
+          "name": "Admin login (email or admin ID)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"admin@medvault.app\",\n  \"password\": \"Admin@12345\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.token && j.isAdmin) pm.collectionVariables.set('adminToken', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "me"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change admin password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "change-password"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Admin@12345\",\n  \"newPassword\": \"A-new-Str0ng-Password\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.token) pm.collectionVariables.set('adminToken', j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Overview (totals, weekly sales, needs attention)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "overview"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users (filter / search / sort / page)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?filter=all&sort=recent&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "all",
+                  "disabled": false
+                },
+                {
+                  "key": "q",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "recent",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": false
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.users && j.users.length) pm.collectionVariables.set('userId', j.users[0].userId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users \u2013 suspended only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?filter=suspended",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "suspended",
+                  "disabled": false
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "User detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suspend user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/suspend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "suspend"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reactivate user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/reactivate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "reactivate"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reset user password (returns the temporary password once)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "reset-password"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete user (permanent, cascades)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Alerts across all pharmacies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/alerts?page=1&limit=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "alerts"
+              ],
+              "query": [
+                {
+                  "key": "tier",
+                  "value": "expired",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "low_stock",
+                  "disabled": true
+                },
+                {
+                  "key": "q",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": false
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Activity log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/activity?group=all&page=1&limit=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "activity"
+              ],
+              "query": [
+                {
+                  "key": "group",
+                  "value": "all",
+                  "disabled": false
+                },
+                {
+                  "key": "userId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": false
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export all users (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/export.csv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "export.csv"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Home",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Drugs & suppliers",
+      "item": [
+        {
+          "name": "List drugs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drugs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drugs"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Lookup by barcode (scan)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drugs/barcode/5012345678901",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drugs",
+                "barcode",
+                "5012345678901"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create drug",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drugs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drugs"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Paracetamol 500mg\",\n  \"category\": \"Analgesic\",\n  \"barcode\": \"5019988771234\",\n  \"reorderLevel\": 300\n}"
+            }
+          }
+        },
+        {
+          "name": "Update drug / reorder level",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drugs/{{drugId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drugs",
+                "{{drugId}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reorderLevel\": 250\n}"
+            }
+          }
+        },
+        {
+          "name": "List suppliers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/suppliers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "suppliers"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create supplier",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/suppliers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "suppliers"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Emzor Distribution Ltd\",\n  \"contactInfo\": \"+234 803 111 2233\",\n  \"address\": \"Ikeja, Lagos\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Batches (stock)",
+      "item": [
+        {
+          "name": "List batches (most urgent first)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/batches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "batches"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Save a delivery (bulk)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/batches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "batches"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batches\": [\n    {\n      \"drugId\": \"{{drugId}}\",\n      \"newSupplierName\": \"Emzor Distribution Ltd\",\n      \"batchNumber\": \"P2207\",\n      \"quantity\": 240,\n      \"expiryDate\": \"2027-03-14\"\n    },\n    {\n      \"newDrug\": {\n        \"name\": \"Metformin 850mg\",\n        \"category\": \"Antidiabetic\",\n        \"barcode\": \"5017765432198\",\n        \"reorderLevel\": 120\n      },\n      \"newSupplierName\": \"Fidson Healthcare\",\n      \"batchNumber\": \"MF-2210\",\n      \"quantity\": 320,\n      \"expiryDate\": \"2027-08-01\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Edit batch",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/batches/{{batchId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "batches",
+                "{{batchId}}"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 200,\n  \"expiryDate\": \"2027-04-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Discard batch",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/batches/{{batchId}}/discard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "batches",
+                "{{batchId}}",
+                "discard"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sales",
+      "item": [
+        {
+          "name": "Record sale (FEFO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sales"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drugId\": \"{{drugId}}\",\n  \"quantity\": 12\n}"
+            }
+          }
+        },
+        {
+          "name": "Today's sales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sales/today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sales",
+                "today"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sales history (30 days)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sales?days=30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sales"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alerts",
+      "item": [
+        {
+          "name": "Open alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alerts?status=Open",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "alerts"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Open"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Critical only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alerts?status=Open&tier=critical",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "alerts"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Open"
+                },
+                {
+                  "key": "tier",
+                  "value": "critical"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Low stock only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alerts?type=low_stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "alerts"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "low_stock"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resolved alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alerts?status=Resolved",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "alerts"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Resolved"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Re-check now",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alerts/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "alerts",
+                "refresh"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Forecast",
+      "item": [
+        {
+          "name": "All drugs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/forecast?leadTimeWeeks=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "forecast"
+              ],
+              "query": [
+                {
+                  "key": "leadTimeWeeks",
+                  "value": "2"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "One drug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/forecast/{{drugId}}?leadTimeWeeks=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "forecast",
+                "{{drugId}}"
+              ],
+              "query": [
+                {
+                  "key": "leadTimeWeeks",
+                  "value": "2"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export & push",
+      "item": [
+        {
+          "name": "Inventory CSV",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/export/inventory.csv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "export",
+                "inventory.csv"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register push token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/push/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "push",
+                "token"
+              ],
+              "query": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]\",\n  \"enabled\": true\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

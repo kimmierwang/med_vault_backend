@@ -9,6 +9,7 @@ import forecast from './forecast.js';
 import dashboard from './dashboard.js';
 import exportRoutes from './export.js';
 import push from './push.js';
+import catalog from './catalog.js';
 import admin from './admin.js';
 import { requireAuth } from '../middleware/auth.js';
 import { HttpError } from '../utils/http.js';
@@ -26,6 +27,7 @@ api.use('/admin', (req, _res, next) => next(new HttpError(404, `Route not found:
 api.use(requireAuth);
 api.use('/dashboard', dashboard);
 api.use('/drugs', drugs);
+api.use('/catalog', catalog);
 api.use('/suppliers', suppliers);
 api.use('/batches', batches);
 api.use('/sales', sales);

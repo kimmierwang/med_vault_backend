@@ -49,3 +49,9 @@ export const presentAlert = (a) => ({
   alertId: id(a._id), batchId: id(a.batchId), drugId: id(a.drugId), alertType: a.alertType, alertTier: a.alertTier,
   status: a.status, createdAt: a.createdAt.toISOString(), resolvedAt: a.resolvedAt ? a.resolvedAt.toISOString() : null,
 });
+
+export const presentCatalog = (c) => ({
+  barcode: c.barcode, name: c.name, category: c.category, composition: c.composition, description: c.description,
+  packSize: c.packSize, nafdacRegNo: c.nafdacRegNo, mfgLicenseNo: c.mfgLicenseNo, batchNumber: c.batchNumber,
+  mfgDate: c.mfgDate, expDate: c.expDate,
+});

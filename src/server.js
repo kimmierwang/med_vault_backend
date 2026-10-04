@@ -4,6 +4,7 @@ import { config } from './config.js';
 import { createApp } from './app.js';
 import { reconcileAll } from './services/alerts.js';
 import { ensureAdmin } from './services/admin.js';
+import { seedCatalog } from './services/catalog.js';
 
 async function main() {
   await mongoose.connect(config.mongoUri);
@@ -13,6 +14,8 @@ async function main() {
   const admin = await ensureAdmin();
   if (admin.created) console.log(`Administrator account created for ${admin.email}. Remove ADMIN_PASSWORD from the environment now.`);
   else if (!admin.exists) console.warn('No administrator account exists yet. Set ADMIN_EMAIL and ADMIN_PASSWORD, or run: npm run create-admin');
+
+  await seedCatalog();
 
   const app = createApp();
   const server = app.listen(config.port, () => console.log(`MedVault API listening on port ${config.port} (${config.env})`));

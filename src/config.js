@@ -24,6 +24,19 @@ export const config = {
   pushEnabled: env.PUSH_ENABLED !== 'false',
   expoAccessToken: env.EXPO_ACCESS_TOKEN || undefined,
 
+  // ---- Welcome email (prototype: sent on sign-up, never blocks or fails the sign-up) ----
+  // Leave SMTP_HOST empty to skip sending (the email is just logged to the console).
+  mail: {
+    host: env.SMTP_HOST || '',
+    port: Number(env.SMTP_PORT) || 465,
+    secure: (env.SMTP_SECURE || (Number(env.SMTP_PORT) === 587 ? 'false' : 'true')) !== 'false',
+    user: env.SMTP_USER || '',
+    pass: env.SMTP_PASS || '',
+    from: env.MAIL_FROM || 'MedVault <no-reply@medvault.app>',
+  },
+  // Public address of THIS backend, used for the button link inside the email (must be reachable from the phone).
+  publicApiUrl: (env.PUBLIC_API_URL || `http://localhost:${Number(env.PORT) || 4000}`).replace(/\/$/, ''),
+
   // ---- Administrator (exactly one account may exist) ----
   // If no admin exists yet, the server creates one at start-up from these (never overwrites an existing admin).
   // Or run `npm run create-admin`. Use a strong password and remove it from the environment afterwards.

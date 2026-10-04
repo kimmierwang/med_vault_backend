@@ -80,6 +80,23 @@ const drugSchema = new Schema({
 });
 drugSchema.index({ userId: 1, barcode: 1 });
 
+// ---- DrugCatalog: shared reference data, looked up by the barcode on the pack ----------------
+// Not owned by any pharmacy. Read-only through the API; seeded at server start (services/catalog.js).
+// Printed dates are kept exactly as they appear on the pack (month/year).
+const drugCatalogSchema = new Schema({
+  barcode: { type: String, required: true, unique: true, trim: true },
+  name: { type: String, required: true, trim: true },
+  category: { type: String, enum: DRUG_CATEGORIES, default: 'Other' },
+  composition: { type: String, default: '', trim: true },
+  description: { type: String, default: '', trim: true },
+  packSize: { type: String, default: '', trim: true },
+  nafdacRegNo: { type: String, default: '', trim: true },
+  mfgLicenseNo: { type: String, default: '', trim: true },
+  batchNumber: { type: String, default: '', trim: true },
+  mfgDate: { type: String, default: '', trim: true },
+  expDate: { type: String, default: '', trim: true },
+});
+
 // ---- Batch ------------------------------------------------------------------
 const batchSchema = new Schema({
   drugId: { type: ObjectId, ref: 'Drug', required: true, index: true },
@@ -125,6 +142,7 @@ export const Admin = model('Admin', adminSchema);
 export const ActivityLog = model('ActivityLog', activitySchema);
 export const Supplier = model('Supplier', supplierSchema);
 export const Drug = model('Drug', drugSchema);
+export const DrugCatalog = model('DrugCatalog', drugCatalogSchema);
 export const Batch = model('Batch', batchSchema);
 export const Sale = model('Sale', saleSchema);
 export const Alert = model('Alert', alertSchema);

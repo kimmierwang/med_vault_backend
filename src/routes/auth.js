@@ -8,6 +8,7 @@ import { signAdminToken, signUserToken, requireAuthAllowPasswordChange } from '.
 import { validate } from '../middleware/validate.js';
 import { HttpError, asyncHandler } from '../utils/http.js';
 import { logActivity } from '../services/activity.js';
+import { sendWelcomeEmail, verifyEmailToken } from '../services/mailer.js';
 
 const router = Router();
 
@@ -42,8 +43,20 @@ router.post('/register', validate(registerSchema), asyncHandler(async (req, res)
   }
   const user = await User.create({ ...rest, passwordHash: await bcrypt.hash(password, config.bcryptRounds) });
   await logActivity({ user, type: 'signup', message: 'Created an account' });
+  sendWelcomeEmail(user); // not awaited: the sign-up never waits for, or fails because of, the email
   res.status(201).json({ token: signUserToken(user), user: presentUser(user), isAdmin: false });
 }));
+
+// Target of the "Verify my email" button in the welcome email. Prototype: it only confirms the link works.
+router.get('/verify-email', (req, res) => {
+  let ok = true;
+  try { verifyEmailToken(String(req.query.token || '')); } catch { ok = false; }
+  res.status(ok ? 200 : 400).type('html').send(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>MedVault</title></head>
+<body style="font-family:Arial,sans-serif;background:#f3f6f5;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;">
+<div style="background:#fff;border-radius:14px;padding:32px;max-width:380px;text-align:center;">
+<h2 style="color:#0b6b4f;margin:0 0 8px;">${ok ? 'Email verified' : 'Link expired'}</h2>
+<p style="color:#44514b;line-height:1.5;">${ok ? 'Thanks! You can go back to the MedVault app.' : 'This verification link is invalid or has expired.'}</p></div></body></html>`);
+});
 
 // One login for everybody (documentation §4.1.0): email OR staff ID. If the identifier belongs to THE
 // administrator the response has `isAdmin: true` and an admin token; the app then opens the admin console.

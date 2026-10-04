@@ -25,14 +25,11 @@ export const config = {
   expoAccessToken: env.EXPO_ACCESS_TOKEN || undefined,
 
   // ---- Welcome email (prototype: sent on sign-up, never blocks or fails the sign-up) ----
-  // Leave SMTP_HOST empty to skip sending (the email is just logged to the console).
+  // Sent through the Brevo email API. Leave BREVO_API_KEY empty to skip sending (the link is logged instead).
   mail: {
-    host: env.SMTP_HOST || '',
-    port: Number(env.SMTP_PORT) || 465,
-    secure: (env.SMTP_SECURE || (Number(env.SMTP_PORT) === 587 ? 'false' : 'true')) !== 'false',
-    user: env.SMTP_USER || '',
-    pass: env.SMTP_PASS || '',
-    from: env.MAIL_FROM || 'MedVault <no-reply@medvault.app>',
+    apiKey: env.BREVO_API_KEY || '',
+    fromEmail: env.MAIL_FROM_EMAIL || '',   // must be a sender you verified in Brevo
+    fromName: env.MAIL_FROM_NAME || 'MedVault',
   },
   // Public address of THIS backend, used for the button link inside the email (must be reachable from the phone).
   publicApiUrl: (env.PUBLIC_API_URL || `http://localhost:${Number(env.PORT) || 4000}`).replace(/\/$/, ''),
